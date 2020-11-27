@@ -1124,18 +1124,26 @@ specification}\label{model-initialization-and-specification}}
 
 This section gives the tools for specifying a model.
 
-The model must be complete specified before simulation can begin.
+The model must be completely specified before simulation can begin.
 
 The model-specification API consists of number of functions, each of
 whose name begins with \texttt{note}, and take as their first argument
 the model being specified.
 
-Some of the main model-specification functions are: *
-\textbf{\texttt{notePerson!}} introduces new named person into the
-model.
-\texttt{notePerson!(m,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ personID,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ infectedProbability,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ maskedProbability,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ asymptomaticProbability)}
+Some of the main model-specification functions are:
 
 \begin{itemize}
+\item
+  \textbf{\texttt{notePerson!}} introduces a new named person into the
+  model.
+
+\begin{verbatim}
+notePerson!(m, 
+            personID,
+            infectedProbability,
+            maskedProbability,
+            asymptomaticProbability)
+\end{verbatim}
 \item
   \textbf{\texttt{noteContact!}} specifies a contact between two or more
   people. At least one of them should be named. A number of anonymous
