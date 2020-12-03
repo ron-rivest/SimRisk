@@ -386,13 +386,13 @@ on a history of their recent contacts and test results (as well as
 certain assumptions and other information).
 
 A simulation consists of many \emph{simulation runs}; we also call a
-simulation run a \emph{scenario}. Each simulation run is based on the
-provided history of contacts and test results, but may vary in the
-pattern of how infection spreads among the individuals. Simulation runs
-that give results inconsistent with provided test results are discarded.
-The probability that an individual is infected at the end is estimated
-as the fraction of remaining simulation runs in which that individual is
-infected.
+simulation run a \emph{scenario} or a \emph{world}. Each simulation run
+is based on the provided history of contacts and test results, but may
+vary in the pattern of how infection starts and spreads among the
+individuals. Simulation runs that give results inconsistent with
+provided test results are discarded. The probability that an individual
+is infected at the end is estimated as the fraction of remaining
+simulation runs in which that individual is infected.
 
 A simulation may also take into account: * whether individuals are
 wearing \textbf{masks} (and if so, what type of mask) * the
@@ -546,15 +546,15 @@ We now introduce the graphical representation of a schedule. This
 consists of the following components and semantics: * a two-dimensional
 canvas to hold the graphical elements * the vertical axis represents
 time, with time increasing from top to bottom (measured in days). * the
-canvas is divided into blocks representing days by horizontal bars *
-each named person in the schedule is represented by a solid vertical
-line (or \emph{wire}) * each wire carries information from top to bottom
-about the state of the individual, such as whether they are infected or
-not, or whether they are masked * there are several kinds of events
-possible in the schedule: - \textbf{\emph{NewPerson}} events, which
-introduces a new \textbf{named} person, and representing that for each
-simulation run the individual's disease state may be simulated via a
-random draw from a specified distribution. Typically, just the overall
+canvas is divided into blocks representing days by horizontal dotted
+lines * each named person in the schedule is represented by a solid
+vertical line (or \emph{wire}) * each wire carries information from top
+to bottom about the state of the individual, such as whether they are
+infected or not, or whether they are masked * there are several kinds of
+events possible in the schedule: - \textbf{\emph{NewPerson}} events,
+which introduces a new \textbf{named} person, and representing that for
+each simulation run the individual's disease state may be simulated via
+a random draw from a specified distribution. Typically, just the overall
 prevalence is specified, and the distribution is uniform over I1..ILast.
 - \textbf{\emph{Contact}} events representing the possibility of
 transmission of disease between individuals. Each contact event
@@ -785,10 +785,10 @@ other observable attributes such as whether a person is wearing a mask.
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{struct} \PY{n}{TestType}
     \PY{n}{name}\PY{o}{::}\PY{n}{String}         \PY{c}{\PYZsh{} name of test type}
-    \PY{n}{P\PYZus{}det}\PY{o}{::}\PY{k+kt}{Real}          \PY{c}{\PYZsh{} Probability of detecting infection }
+    \PY{n}{P\PYZus{}det}\PY{o}{::}\PY{k+kt}{Float64}       \PY{c}{\PYZsh{} Probability of detecting infection }
                          \PY{c}{\PYZsh{}     = P(pos test result | infected)}
                          \PY{c}{\PYZsh{}     = sensitivity}
-    \PY{n}{P\PYZus{}FA}\PY{o}{::}\PY{k+kt}{Real}           \PY{c}{\PYZsh{} Probability of a false alarm }
+    \PY{n}{P\PYZus{}FA}\PY{o}{::}\PY{k+kt}{Float64}           \PY{c}{\PYZsh{} Probability of a false alarm }
                          \PY{c}{\PYZsh{}     = P(pos test result | uninfected)}
                          \PY{c}{\PYZsh{}     = 1 \PYZhy{} specificity}
 \PY{k}{end}
@@ -819,8 +819,8 @@ source and as recipient).
 \prompt{In}{incolor}{4}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{struct} \PY{n}{MaskType}
-    \PY{n}{sourceMaskTransmission}\PY{o}{::}\PY{k+kt}{Real}    \PY{c}{\PYZsh{} 1 \PYZhy{} filtrationEfficiency for source, if source wearing this mask type}
-    \PY{n}{recipientMaskTransmission}\PY{o}{::}\PY{k+kt}{Real} \PY{c}{\PYZsh{} 1 \PYZhy{} filtrationEfficiency for recipient, if recipient wearing this mask type}
+    \PY{n}{sourceMaskTransmission}\PY{o}{::}\PY{k+kt}{Float64}    \PY{c}{\PYZsh{} 1 \PYZhy{} filtrationEfficiency for source, if source wearing this mask type}
+    \PY{n}{recipientMaskTransmission}\PY{o}{::}\PY{k+kt}{Float64} \PY{c}{\PYZsh{} 1 \PYZhy{} filtrationEfficiency for recipient, if recipient wearing this mask type}
 \PY{k}{end}
 
 \PY{n}{N95} \PY{o}{=} \PY{n}{MaskType}\PY{p}{(}\PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+m+mf}{0.05}\PY{p}{)}          \PY{c}{\PYZsh{} Check numbers}
@@ -904,20 +904,21 @@ in a timeless manner.
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{mutable} \PY{k}{struct} \PY{n}{GlobalParameters}
     \PY{c}{\PYZsh{} parameters for random named people}
-    \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Real}                  \PY{c}{\PYZsh{} probability that a random person is infected}
-    \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Real}                    \PY{c}{\PYZsh{} probability that a random person is masked}
-    \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real}              \PY{c}{\PYZsh{} probability that a random person is asymptomatic}
+    \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Float64}        \PY{c}{\PYZsh{} probability that a random person is infected}
+    \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Float64}          \PY{c}{\PYZsh{} probability that a random person is masked}
+    \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64}    \PY{c}{\PYZsh{} probability that a random person is asymptomatic}
+
     \PY{c}{\PYZsh{} same parameters for random anonymous people}
-    \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Real}
-    \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Real}
-    \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real}
+    \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Float64}
+    \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Float64}
+    \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64}
 
     \PY{c}{\PYZsh{} ContactEvent parameters}
 
-    \PY{c}{\PYZsh{} A contact with a give dose (arbitrary units) between two maskless individuals has a probability}
-    \PY{c}{\PYZsh{} of transmission of 1 \PYZhy{} exp(\PYZhy{}dose*transmissionConstant)}
-    \PY{n}{transmissionConstant}\PY{o}{::}\PY{k+kt}{Real} 
-    \PY{n}{asymptomaticFactor}\PY{o}{::}\PY{k+kt}{Real}   \PY{c}{\PYZsh{} reduce dose by this factor if source is asymptomatic}
+    \PY{c}{\PYZsh{} A contact with a give dose (arbitrary units) between two maskless individuals }
+    \PY{c}{\PYZsh{} has a probability of transmission of 1 \PYZhy{} exp(\PYZhy{}dose*transmissionConstant)}
+    \PY{n}{transmissionConstant}\PY{o}{::}\PY{k+kt}{Float64} 
+    \PY{n}{asymptomaticFactor}\PY{o}{::}\PY{k+kt}{Float64}   \PY{c}{\PYZsh{} reduce dose by this factor if source is asymptomatic}
     
     \PY{c}{\PYZsh{} infectiousness as a function of DiseaseState (indices will be \PYZhy{}1:infectionDurationDays)}
     \PY{n}{infectiousness}\PY{o}{::}\PY{n}{OffsetArray}\PY{p}{\PYZob{}}\PY{k+kt}{Float64}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{,}\PY{k+kt}{Array}\PY{p}{\PYZob{}}\PY{k+kt}{Float64}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{\PYZcb{}}\PY{p}{\PYZcb{}}
@@ -927,6 +928,7 @@ in a timeless manner.
 \PY{n}{defaultInfectedProbability} \PY{o}{=} \PY{l+m+mf}{0.02}      \PY{c}{\PYZsh{} prevalence in community}
 \PY{n}{defaultMaskedProbability} \PY{o}{=} \PY{l+m+mf}{0.000}
 \PY{n}{defaultAsymptomaticProbability} \PY{o}{=} \PY{l+m+mf}{0.40}  \PY{c}{\PYZsh{} https://www.cdc.gov/coronavirus/2019\PYZhy{}ncov/hcp/planning\PYZhy{}scenarios.html}
+
 \PY{c}{\PYZsh{} same parameters for anonymous people}
 \PY{n}{defaultAnonymousInfectedProbability} \PY{o}{=} \PY{n}{defaultInfectedProbability}
 \PY{n}{defaultAnonymousMaskedProbability} \PY{o}{=} \PY{n}{defaultMaskedProbability}
@@ -934,10 +936,12 @@ in a timeless manner.
 
 \PY{c}{\PYZsh{} We choose the transmission constant so that }
 \PY{c}{\PYZsh{} a fifteen\PYZhy{}minute contact has a 5\PYZpc{} chance of transmission.}
-\PY{n}{defaultContactDuration} \PY{o}{=} \PY{l+m+mf}{15.0}                     \PY{c}{\PYZsh{} 15 minutes in close contact}
-\PY{n}{defaultContactTransmissionProbability} \PY{o}{=} \PY{l+m+mf}{0.05}      \PY{c}{\PYZsh{} yields 5\PYZpc{} chance of transmission of disease}
+\PY{n}{defaultContactDuration} \PY{o}{=} \PY{l+m+mf}{15.0}                 \PY{c}{\PYZsh{} 15 minutes in close contact}
+\PY{n}{defaultContactTransmissionProbability} \PY{o}{=} \PY{l+m+mf}{0.05}  \PY{c}{\PYZsh{} yields 5\PYZpc{} chance of transmission}
 \PY{n}{defaultTransmissionConstant} \PY{o}{=} \PY{n}{log}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{defaultContactTransmissionProbability}\PY{p}{)}\PY{o}{/} \PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{defaultContactDuration}\PY{p}{)}
-\PY{n}{defaultAsymptomaticFactor} \PY{o}{=} \PY{l+m+mf}{0.75} \PY{c}{\PYZsh{} from https://www.cdc.gov/coronavirus/2019\PYZhy{}ncov/hcp/planning\PYZhy{}scenarios.html}
+\PY{c}{\PYZsh{} following value is from }
+\PY{c}{\PYZsh{}   https://www.cdc.gov/coronavirus/2019\PYZhy{}ncov/hcp/planning\PYZhy{}scenarios.html}
+\PY{n}{defaultAsymptomaticFactor} \PY{o}{=} \PY{l+m+mf}{0.75}
 
 \PY{n}{defaultGlobalParameters} \PY{o}{=} 
     \PY{n}{GlobalParameters}\PY{p}{(} \PY{n}{defaultInfectedProbability}\PY{p}{,}
@@ -965,8 +969,8 @@ GlobalParameters(0.02, 0.0, 0.4, 0.02, 0.0, 0.4, 0.0034195529591700387, 0.75,
     \hypertarget{events}{%
 \section{Events}\label{events}}
 
-    Each event specifies how the model state is to be updated. The update
-may be probabilistic.
+    Each event specifies how the model state is to be updated during a
+simulation run. The update may be probabilistic.
 
 For example, an event might say that if Bob is infected but Alice is
 not, then Alice becomes infected with probability 15\%.
@@ -983,8 +987,8 @@ a set of people, and updates the state of that person or those people.
 \prompt{In}{incolor}{8}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{struct} \PY{n}{DefaultParametersEvent}      \PY{c}{\PYZsh{} set model default global parameters to these values}
-    \PY{n}{infected}\PY{o}{::}\PY{k+kt}{Real}
-    \PY{n}{masked}\PY{o}{::}\PY{k+kt}{Real}
+    \PY{n}{infected}\PY{o}{::}\PY{k+kt}{Float64}
+    \PY{n}{masked}\PY{o}{::}\PY{k+kt}{Float64}
 \PY{k}{end}
 \end{Verbatim}
 \end{tcolorbox}
@@ -994,11 +998,11 @@ a set of people, and updates the state of that person or those people.
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{struct} \PY{n}{NewPersonEvent}
     \PY{n}{person}\PY{o}{::}\PY{n}{Person}                 \PY{c}{\PYZsh{} person created first, then NewPersonEvent}
-    \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Real}      \PY{c}{\PYZsh{} e.g. prevalance of infection in the population individual is drawn from}
+    \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Float64}   \PY{c}{\PYZsh{} e.g. prevalance of infection in the population individual is drawn from}
                                    \PY{c}{\PYZsh{} assume equally likely to be any of I1...ILast}
                                    \PY{c}{\PYZsh{} Todo: update for other distributions.}
-    \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Real}        \PY{c}{\PYZsh{} probability that new individual is masked}
-    \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real}  \PY{c}{\PYZsh{} probability that new individual is asymptomatic}
+    \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Float64}     \PY{c}{\PYZsh{} probability that new individual is masked}
+    \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{c}{\PYZsh{} probability that new individual is asymptomatic}
     
 \PY{k}{end}
 \end{Verbatim}
@@ -1043,11 +1047,11 @@ a set of people, and updates the state of that person or those people.
                      \PY{c}{\PYZsh{} An Int means that many people with default parameter settings}
                      \PY{c}{\PYZsh{} (Vertical line segment joining two or more horizontal Person lines)}
     \PY{n}{minutes}\PY{o}{::}\PY{k+kt}{Int} 
-    \PY{n}{people}\PY{o}{::}\PY{k+kt}{Array}\PY{p}{\PYZob{}}\PY{n}{Person}\PY{p}{\PYZcb{}}
-    \PY{n}{anonymousNumber}\PY{o}{::}\PY{k+kt}{Int}
-    \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Real}
-    \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Real}
-    \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real}
+    \PY{n}{people}\PY{o}{::}\PY{k+kt}{Vector}\PY{p}{\PYZob{}}\PY{n}{Person}\PY{p}{\PYZcb{}}
+    \PY{n}{anonymousNumber}\PY{o}{::}\PY{k+kt}{Int64}
+    \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Float64}
+    \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Float64}
+    \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64}
 \PY{k}{end}
 \end{Verbatim}
 \end{tcolorbox}
@@ -1081,7 +1085,7 @@ a set of people, and updates the state of that person or those people.
             \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
 \prompt{Out}{outcolor}{16}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
-Union\{NewDayEvent, StatsEvent, ContactEvent, DefaultParametersEvent, MaskEvent,
+Union\{NewDayEvent, StatsEvent, DefaultParametersEvent, ContactEvent, MaskEvent,
 NewPersonEvent, SymptomOnsetEvent, TestEvent\}
 \end{Verbatim}
 \end{tcolorbox}
@@ -1100,10 +1104,10 @@ entries in the event list
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{mutable} \PY{k}{struct} \PY{n}{Model}
     \PY{n}{params}\PY{o}{::}\PY{n}{GlobalParameters}
-    \PY{n}{people}\PY{o}{::}\PY{k+kt}{Array}\PY{p}{\PYZob{}}\PY{n}{Person}\PY{p}{\PYZcb{}}     \PY{c}{\PYZsh{} all people in model}
-    \PY{n}{events}\PY{o}{::}\PY{k+kt}{Array}\PY{p}{\PYZob{}}\PY{n}{Event}\PY{p}{\PYZcb{}}      \PY{c}{\PYZsh{} all events in model, ordered by time of occurrence}
+    \PY{n}{people}\PY{o}{::}\PY{k+kt}{Vector}\PY{p}{\PYZob{}}\PY{n}{Person}\PY{p}{\PYZcb{}}    \PY{c}{\PYZsh{} all people in model}
+    \PY{n}{events}\PY{o}{::}\PY{k+kt}{Vector}\PY{p}{\PYZob{}}\PY{n}{Event}\PY{p}{\PYZcb{}}     \PY{c}{\PYZsh{} all events in model, ordered by time of occurrence}
     \PY{n}{name}\PY{o}{::}\PY{n}{String}              \PY{c}{\PYZsh{} name of the model}
-    \PY{n}{nStats}\PY{o}{::}\PY{k+kt}{Int}               \PY{c}{\PYZsh{} number of stats events in event list}
+    \PY{n}{nStats}\PY{o}{::}\PY{k+kt}{Int64}             \PY{c}{\PYZsh{} number of stats events in event list}
     \PY{n}{stats}\PY{o}{::}\PY{k+kt}{Dict}               \PY{c}{\PYZsh{} statistics gathered}
 \PY{k}{end}
 \PY{n}{Model}\PY{p}{(}\PY{p}{)} \PY{o}{=} \PY{n}{Model}\PY{p}{(}\PY{n}{defaultGlobalParameters}\PY{p}{,} \PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{l+s}{\PYZdq{}}\PY{l+s}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{k+kt}{Dict}\PY{p}{(}\PY{p}{)}\PY{p}{)}
@@ -1232,9 +1236,9 @@ findPersonByID (generic function with 1 method)
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{function} \PY{n}{notePerson!}\PY{p}{(}\PY{n}{m}\PY{o}{::}\PY{n}{Model}\PY{p}{,} 
                      \PY{n}{personID}\PY{p}{;} 
-                     \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{infectedProbability}\PY{p}{,}
-                     \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{maskedProbability}\PY{p}{,}
-                     \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{asymptomaticProbability}\PY{p}{)}
+                     \PY{n}{infectedProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{infectedProbability}\PY{p}{,}
+                     \PY{n}{maskedProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{maskedProbability}\PY{p}{,}
+                     \PY{n}{asymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{asymptomaticProbability}\PY{p}{)}
     \PY{n}{p} \PY{o}{=} \PY{n}{Person}\PY{p}{(}\PY{n}{personID}\PY{p}{,} \PY{k+kc}{false}\PY{p}{,} \PY{n}{DiseaseState}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{n}{VisibleState}\PY{p}{(}\PY{p}{)}\PY{p}{)}
     \PY{n+nb}{e} \PY{o}{=} \PY{n}{NewPersonEvent}\PY{p}{(}\PY{n}{p}\PY{p}{,} \PY{n}{infectedProbability}\PY{p}{,} \PY{n}{maskedProbability}\PY{p}{,} \PY{n}{asymptomaticProbability}\PY{p}{)}
     \PY{n}{push!}\PY{p}{(}\PY{n}{m}\PY{o}{.}\PY{n}{people}\PY{p}{,} \PY{n}{p}\PY{p}{)}
@@ -1308,12 +1312,13 @@ noteSymptomOnset! (generic function with 1 method)
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
 \prompt{In}{incolor}{24}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
-\PY{k}{function} \PY{n}{noteContact!}\PY{p}{(}\PY{n}{m}\PY{o}{::}\PY{n}{Model}\PY{p}{,} \PY{n}{personIDs}\PY{p}{;}
-                      \PY{n}{minutes}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{l+m+mi}{15}\PY{p}{,}
-                      \PY{n}{anonymousNumber}\PY{o}{::}\PY{k+kt}{Int} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{,}
-                      \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousInfectedProbability}\PY{p}{,}
-                      \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousMaskedProbability}\PY{p}{,}
-                      \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Real} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousAsymptomaticProbability}\PY{p}{)}
+\PY{k}{function} \PY{n}{noteContact!}\PY{p}{(}\PY{n}{m}\PY{o}{::}\PY{n}{Model}\PY{p}{,} 
+                      \PY{n}{personIDs}\PY{p}{;}
+                      \PY{n}{minutes}\PY{o}{::}\PY{k+kt}{Int64} \PY{o}{=} \PY{l+m+mi}{15}\PY{p}{,}
+                      \PY{n}{anonymousNumber}\PY{o}{::}\PY{k+kt}{Int64} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{,}
+                      \PY{n}{anonymousInfectedProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousInfectedProbability}\PY{p}{,}
+                      \PY{n}{anonymousMaskedProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousMaskedProbability}\PY{p}{,}
+                      \PY{n}{anonymousAsymptomaticProbability}\PY{o}{::}\PY{k+kt}{Float64} \PY{o}{=} \PY{n}{m}\PY{o}{.}\PY{n}{params}\PY{o}{.}\PY{n}{anonymousAsymptomaticProbability}\PY{p}{)}
     \PY{c}{\PYZsh{} here a \PYZdq{}personID\PYZdq{} should be a String}
     \PY{c}{\PYZsh{} Strings are looked up (converted to existing people); }
     \PY{n}{people} \PY{o}{=} \PY{p}{[}\PY{p}{]}
@@ -1703,15 +1708,12 @@ simulateEvent (generic function with 1 method)
 \prompt{In}{incolor}{37}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{function} \PY{n}{simulationRun}\PY{p}{(}\PY{n}{m}\PY{o}{::}\PY{n}{Model}\PY{p}{,} \PY{n}{runSeed}\PY{o}{::}\PY{k+kt}{UInt}\PY{p}{)}
-    \PY{n}{consistent} \PY{o}{=} \PY{k+kc}{true} \PY{c}{\PYZsh{} will be true if all tests as reported, false otherwise}
     \PY{n}{t} \PY{o}{=} \PY{l+m+mi}{0}             \PY{c}{\PYZsh{} stats counter}
     \PY{k}{for} \PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n+nb}{e}\PY{p}{)} \PY{k+kp}{in} \PY{n}{enumerate}\PY{p}{(}\PY{n}{m}\PY{o}{.}\PY{n}{events}\PY{p}{)}
         \PY{n}{eventSeed} \PY{o}{=} \PY{n}{subSeed}\PY{p}{(}\PY{n}{runSeed}\PY{p}{,} \PY{n}{i}\PY{p}{)}
         \PY{n+nb}{e} \PY{k+kp}{isa} \PY{n}{StatsEvent} \PY{o}{\PYZam{}\PYZam{}} \PY{p}{(}\PY{n}{t} \PY{o}{+=} \PY{l+m+mi}{1}\PY{p}{)}
-        \PY{n}{consistent} \PY{o}{*=} \PY{n}{simulateEvent}\PY{p}{(}\PY{n}{m}\PY{p}{,} \PY{n+nb}{e}\PY{p}{,} \PY{n}{t}\PY{p}{,} \PY{n}{eventSeed}\PY{p}{)}
-        \PY{o}{!}\PY{n}{consistent} \PY{o}{\PYZam{}\PYZam{}} \PY{k}{break}
+        \PY{o}{!}\PY{n}{simulateEvent}\PY{p}{(}\PY{n}{m}\PY{p}{,} \PY{n+nb}{e}\PY{p}{,} \PY{n}{t}\PY{p}{,} \PY{n}{eventSeed}\PY{p}{)} \PY{o}{\PYZam{}\PYZam{}} \PY{k}{break}
     \PY{k}{end}
-    \PY{c}{\PYZsh{} consistent \PYZam{}\PYZam{} gatherStats!(m, t) }
 \PY{k}{end}
 \end{Verbatim}
 \end{tcolorbox}
@@ -1880,7 +1882,7 @@ Done.
     { \hspace*{\fill} \\}
     
     \begin{Verbatim}[commandchars=\\\{\}]
-  3.047486 seconds (15.54 M allocations: 711.713 MiB, 7.18\% gc time)
+  2.845499 seconds (14.17 M allocations: 676.696 MiB, 7.25\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-2-a-two-day-example}{%
@@ -1931,7 +1933,7 @@ Starting simulation with simulationSeed 0 and 100000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  0.710293 seconds (4.90 M allocations: 108.514 MiB, 2.73\% gc time)
+Done.  0.516121 seconds (3.31 M allocations: 73.573 MiB, 2.31\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-3-one-person-one-day-and-one-perfect-test}{%
@@ -1981,7 +1983,7 @@ Starting simulation with simulationSeed 0 and 100000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  0.532080 seconds (3.43 M allocations: 78.719 MiB, 2.20\% gc time)
+Done.  0.344656 seconds (2.03 M allocations: 48.102 MiB, 2.46\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-4-one-person-one-day-and-one-imperfect-test}{%
@@ -2040,7 +2042,7 @@ Starting simulation with simulationSeed 0 and 100000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  0.526432 seconds (3.50 M allocations: 80.175 MiB, 2.87\% gc time)
+Done.  0.363067 seconds (2.09 M allocations: 49.344 MiB, 2.13\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-5-one-person-one-day-and-a-repeated-imperfect-test}{%
@@ -2095,7 +2097,7 @@ Starting simulation with simulationSeed 0 and 100000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  0.547351 seconds (3.58 M allocations: 82.145 MiB, 2.60\% gc time)
+Done.  0.388298 seconds (2.15 M allocations: 50.906 MiB, 3.20\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-6-one-person-one-symptomonset}{%
@@ -2146,7 +2148,7 @@ Starting simulation with simulationSeed 0 and 1000000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  5.482986 seconds (33.86 M allocations: 778.098 MiB, 1.46\% gc time)
+Done.  3.683867 seconds (20.83 M allocations: 487.386 MiB, 1.51\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-7-two-person-one-day-close-contact}{%
@@ -2200,7 +2202,7 @@ Starting simulation with simulationSeed 2 and 1000000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  9.793994 seconds (81.05 M allocations: 1.792 GiB, 1.94\% gc time)
+Done.  6.909286 seconds (55.01 M allocations: 1.282 GiB, 1.95\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-8-twelve-person-ten-unknown-one-day-close-contact}{%
@@ -2256,7 +2258,7 @@ Starting simulation with simulationSeed 0 and 1000000 runs
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done. 13.288421 seconds (245.72 M allocations: 4.243 GiB, 3.04\% gc time)
+Done.  7.230288 seconds (55.00 M allocations: 1.282 GiB, 1.94\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-9-three-named-people-four-anonymous-people-two-tests-and-a-newday}{%
@@ -2285,8 +2287,20 @@ NewDay}\label{example-9-three-named-people-four-anonymous-people-two-tests-and-a
     \PY{n}{noteTest!}\PY{p}{(}\PY{n}{m}\PY{p}{,} \PY{l+s}{\PYZdq{}}\PY{l+s}{J}\PY{l+s}{i}\PY{l+s}{l}\PY{l+s}{l}\PY{l+s}{\PYZdq{}}\PY{p}{,} \PY{n}{PCRTest}\PY{p}{,} \PY{k+kc}{false}\PY{p}{)}
     \PY{n}{noteStats!}\PY{p}{(}\PY{n}{m}\PY{p}{)}
     \PY{k}{return} \PY{n}{m}
-\PY{k}{end}    
+\PY{k}{end}
+\end{Verbatim}
+\end{tcolorbox}
 
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{51}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+example9 (generic function with 1 method)
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{52}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{m} \PY{o}{=} \PY{n}{example9}\PY{p}{(}\PY{p}{)}
 \PY{n+nd}{@time} \PY{n}{simulation}\PY{p}{(}\PY{n}{m}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{100000}\PY{p}{)}
 
@@ -2311,13 +2325,13 @@ Starting simulation with simulationSeed 1 and 100000 runs
     \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_104_1.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_105_1.png}
     \end{center}
     { \hspace*{\fill} \\}
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  2.057211 seconds (21.30 M allocations: 429.947 MiB, 3.27\% gc time)
+Done.  1.362576 seconds (9.49 M allocations: 231.043 MiB, 2.31\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-10-a-complex-thirteen-person-example}{%
@@ -2329,7 +2343,7 @@ anonymous people. The example proceeds for three days, and has four
 contact events.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{52}{\boxspacing}
+\prompt{In}{incolor}{53}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{function} \PY{n}{example10}\PY{p}{(}\PY{p}{)}\PY{o}{::}\PY{n}{Model} 
     \PY{n}{m} \PY{o}{=} \PY{n}{Model}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{E}\PY{l+s}{x}\PY{l+s}{a}\PY{l+s}{m}\PY{l+s}{p}\PY{l+s}{l}\PY{l+s}{e}\PY{l+s}{ }\PY{l+s}{1}\PY{l+s}{0}\PY{l+s}{\PYZdq{}}\PY{p}{)}
@@ -2391,13 +2405,13 @@ Starting simulation with simulationSeed 1 and 100000 runs
     \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_107_1.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_108_1.png}
     \end{center}
     { \hspace*{\fill} \\}
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  3.357465 seconds (28.97 M allocations: 633.750 MiB, 3.14\% gc time)
+Done.  2.483053 seconds (19.90 M allocations: 469.296 MiB, 2.82\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{example-11-can-a-pcr-positive-test-be-cleared-by-a-subsequent-negative-test}{%
@@ -2416,7 +2430,7 @@ negative test exactly cancels one positive test, so you might want
 \emph{two} negative tests to conclude an overall ``negative'' result.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{53}{\boxspacing}
+\prompt{In}{incolor}{54}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k}{function} \PY{n}{example11}\PY{p}{(}\PY{p}{)}
     \PY{n}{m} \PY{o}{=} \PY{n}{Model}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{E}\PY{l+s}{x}\PY{l+s}{a}\PY{l+s}{m}\PY{l+s}{p}\PY{l+s}{l}\PY{l+s}{e}\PY{l+s}{ }\PY{l+s}{1}\PY{l+s}{1}\PY{l+s}{:}\PY{l+s}{ }\PY{l+s}{C}\PY{l+s}{a}\PY{l+s}{n}\PY{l+s}{ }\PY{l+s}{y}\PY{l+s}{o}\PY{l+s}{u}\PY{l+s}{ }\PY{l+s}{c}\PY{l+s}{l}\PY{l+s}{e}\PY{l+s}{a}\PY{l+s}{r}\PY{l+s}{ }\PY{l+s}{a}\PY{l+s}{ }\PY{l+s}{p}\PY{l+s}{o}\PY{l+s}{s}\PY{l+s}{i}\PY{l+s}{t}\PY{l+s}{i}\PY{l+s}{v}\PY{l+s}{e}\PY{l+s}{ }\PY{l+s}{t}\PY{l+s}{e}\PY{l+s}{s}\PY{l+s}{t}\PY{l+s}{ }\PY{l+s}{w}\PY{l+s}{i}\PY{l+s}{t}\PY{l+s}{h}\PY{l+s}{ }\PY{l+s}{a}\PY{l+s}{ }\PY{l+s}{s}\PY{l+s}{u}\PY{l+s}{b}\PY{l+s}{s}\PY{l+s}{e}\PY{l+s}{q}\PY{l+s}{u}\PY{l+s}{e}\PY{l+s}{n}\PY{l+s}{t}\PY{l+s}{ }\PY{l+s}{n}\PY{l+s}{e}\PY{l+s}{g}\PY{l+s}{a}\PY{l+s}{t}\PY{l+s}{i}\PY{l+s}{v}\PY{l+s}{e}\PY{l+s}{ }\PY{l+s}{t}\PY{l+s}{e}\PY{l+s}{s}\PY{l+s}{t}\PY{l+s}{?}\PY{l+s}{\PYZdq{}}\PY{p}{)}
@@ -2447,13 +2461,13 @@ Starting simulation with simulationSeed 1 and 100000 runs
     \end{Verbatim}
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_110_1.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_111_1.png}
     \end{center}
     { \hspace*{\fill} \\}
     
     \begin{Verbatim}[commandchars=\\\{\}]
 
-Done.  0.577103 seconds (3.63 M allocations: 83.071 MiB, 1.93\% gc time)
+Done.  0.379335 seconds (2.19 M allocations: 51.705 MiB, 1.97\% gc time)
     \end{Verbatim}
 \newpage
     \hypertarget{notes}{%
@@ -2472,23 +2486,22 @@ Guideline}
 
 SimAEN (Lincoln Laboratory) -- to appear.
 
-One interesting application (from 2020 Fall MIT class 15.S19 project by
-H. Ye, J. Scharf, and J. Wang) is to assess how ``infection-free'' a set
-of individuals are, based on their behaviors, contacts, and test results
-over a period of time; where these individuals wish to obtain assurance
-that they may then safely form a ``pod'\,' and skip masking and
-social-distancing guidelines.
-
     \hypertarget{acknowledgments}{%
 \section{Acknowledgments}\label{acknowledgments}}
 
 Ronald L. Rivest has received support from the Center for Science of
 Information (CSoI), an NSF Science and Technology Center, under grant
-agreement CCF-0939370. He would like to thank his many colleagues, on
-the \href{http://pact.mit.edu}{PACT} project and elsewhere, for teaching
-him about covid-19. The code here is freely usable by others (under the
-\href{https://creativecommons.org/licenses/by/4.0/}{Creative Commons
-CC-BY license} license.
+agreement CCF-0939370.
+
+He would like to thank his many colleagues, on the
+\href{http://pact.mit.edu}{PACT} project and elsewhere, for teaching him
+about covid-19.
+
+The code here is freely usable by others (under the
+\href{https://opensource.org/licenses/MIT}{MIT License}).
+
+Thanks to Alan Edelman and Valentin Churavy for suggesting ways to
+improve the code efficiency.
 
 
     % Add a bibliography block to the postdoc
